@@ -36,6 +36,11 @@ cp .env.example .env
 npm start
 ```
 
+### Run the advanced streaming example (with detailed event handling):
+```bash
+npm run start:advanced
+```
+
 ### Run in development mode (with auto-reload):
 ```bash
 npm run dev
@@ -46,15 +51,32 @@ npm run dev
 npm run build
 ```
 
+## Examples
+
+### Basic Streaming
+The basic example (`src/index.ts`) demonstrates:
+- Simple streaming setup with Anthropic SDK
+- Real-time text streaming
+- Basic error handling
+- Usage statistics
+
+### Advanced Streaming
+The advanced example (`src/advanced-streaming.ts`) demonstrates:
+- Multiple event types (messageStart, contentBlockStart, text, etc.)
+- Detailed event logging
+- Token usage tracking
+- Comprehensive error handling
+
 ## Project Structure
 ```
 ai-exam-couch/
 ├── src/
-│   └── index.ts          # Basic streaming completion example
-├── package.json          # Project dependencies and scripts
-├── tsconfig.json         # TypeScript configuration
-├── .env.example          # Example environment variables
-└── README.md             # This file
+│   ├── index.ts                # Basic streaming completion example
+│   └── advanced-streaming.ts   # Advanced streaming with event handling
+├── package.json                # Project dependencies and scripts
+├── tsconfig.json               # TypeScript configuration
+├── .env.example                # Example environment variables
+└── README.md                   # This file
 ```
 
 ## Roadmap
