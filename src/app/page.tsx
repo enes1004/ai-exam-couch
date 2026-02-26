@@ -35,7 +35,7 @@ function ChatBubble({ message }: { message: Message }) {
           {isUser ? 'You' : 'Exam Couch'}
         </span>
         <div
-          className={`rounded-2xl px-7 py-5 text-[15px] leading-relaxed shadow-sm ${
+          className={`rounded-2xl px-4 py-2 text-[15px] leading-relaxed shadow-sm ${
             isUser
               ? 'bg-teal-600 text-white rounded-br-md'
               : 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-bl-md border border-slate-100 dark:border-slate-600'
