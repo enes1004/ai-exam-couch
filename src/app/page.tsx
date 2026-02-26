@@ -1,98 +1,9 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { ChatBubble, TypingIndicator, WelcomeScreen, type Message } from './_components';
 
 const ASSISTANT_NAME = 'AI Exam Couch';
-
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-}
-
-function AvatarIcon({ role }: { role: 'user' | 'assistant' }) {
-  if (role === 'assistant') {
-    return (
-      <div className="flex-shrink-0 w-9 h-9 rounded-full bg-teal-600 flex items-center justify-center text-white text-sm font-semibold shadow-sm">
-        AI
-      </div>
-    );
-  }
-  return (
-    <div className="flex-shrink-0 w-9 h-9 rounded-full bg-slate-500 flex items-center justify-center text-white text-sm font-semibold shadow-sm">
-      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-      </svg>
-    </div>
-  );
-}
-
-function ChatBubble({ message }: { message: Message }) {
-  const isUser = message.role === 'user';
-
-  return (
-    <div className={`flex items-end gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
-      <AvatarIcon role={message.role} />
-      <div className="flex flex-col gap-1 max-w-[75%]">
-        <span className={`text-xs font-medium text-slate-400 ${isUser ? 'text-right' : 'text-left'}`}>
-          {isUser ? 'You' : ASSISTANT_NAME}
-        </span>
-        <div
-          className={`rounded-2xl px-4 py-2 text-[15px] leading-relaxed shadow-sm ${
-            isUser
-              ? 'bg-teal-600 text-white rounded-br-md'
-              : 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-bl-md border border-slate-100 dark:border-slate-600'
-          }`}
-        >
-          <div className="whitespace-pre-wrap">{message.content}</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function TypingIndicator() {
-  return (
-    <div className="flex items-end gap-3">
-      <AvatarIcon role="assistant" />
-      <div className="flex flex-col gap-1">
-        <span className="text-xs font-medium text-slate-400">{ASSISTANT_NAME}</span>
-        <div className="bg-white dark:bg-slate-700 rounded-2xl rounded-bl-md px-7 py-5 shadow-sm border border-slate-100 dark:border-slate-600">
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-            <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-            <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function WelcomeScreen() {
-  return (
-    <div className="flex flex-col items-center justify-center h-full text-center px-8 py-16">
-      <div className="w-16 h-16 rounded-2xl bg-teal-600 flex items-center justify-center text-white text-2xl font-bold shadow-md mb-6">
-        AI
-      </div>
-      <h2 className="text-2xl font-semibold text-slate-800 dark:text-slate-100 mb-3 text-balance">
-        Hey there! Ready to study?
-      </h2>
-      <p className="text-slate-500 dark:text-slate-400 max-w-md leading-relaxed text-balance">
-        {"I'm your personal exam tutor. Ask me a question, throw a tricky topic at me, or just say hi — I'm here to help you ace it!"}
-      </p>
-      <div className="flex flex-wrap justify-center gap-2 mt-8">
-        {['Explain recursion', 'Quiz me on React', 'What is Big-O?'].map((suggestion) => (
-          <span
-            key={suggestion}
-            className="px-4 py-2 text-sm rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600"
-          >
-            {suggestion}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
