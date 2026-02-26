@@ -1,24 +1,49 @@
+import { useState } from 'react';
+
 interface ChatInputFormProps {
   input: string;
   setInput: (value: string) => void;
   isLoading: boolean;
-  useEnterToSend: boolean;
-  setUseEnterToSend: (value: boolean) => void;
   textareaRef: React.RefObject<HTMLTextAreaElement | null>;
-  onSubmit: (e: React.FormEvent) => void;
-  onKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  handleSendMessage: () => void;
 }
 
 export function ChatInputForm({
   input,
   setInput,
   isLoading,
-  useEnterToSend,
-  setUseEnterToSend,
   textareaRef,
-  onSubmit,
-  onKeyDown,
+  handleSendMessage,
 }: ChatInputFormProps) {
+  const [useEnterToSend, setUseEnterToSend] = useState(false);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Always send on Ctrl+Enter (Windows/Linux) or Cmd+Enter (Mac)
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      handleSendMessage();
+      return;
+    }
+
+    // If Enter is pressed (without Ctrl/Cmd)
+    if (e.key === 'Enter') {
+      // If useEnterToSend is true and Shift is not pressed, send message
+      // If useEnterToSend is false and Shift is pressed, send message
+      const shouldSend = useEnterToSend ? !e.shiftKey : e.shiftKey;
+      
+      if (shouldSend) {
+        e.preventDefault();
+        handleSendMessage();
+      }
+      // Otherwise, allow default behavior (newline)
+    }
+  };
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSendMessage();
+  };
+
   return (
     <form
       onSubmit={onSubmit}
@@ -30,7 +55,7 @@ export function ChatInputForm({
             ref={textareaRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={onKeyDown}
+            onKeyDown={handleKeyDown}
             placeholder="Ask me anything..."
             disabled={isLoading}
             rows={1}
@@ -59,11 +84,9 @@ export function ChatInputForm({
             />
             <span>Use Enter to send</span>
           </label>
-          {!useEnterToSend && (
-            <span className="text-xs text-slate-400 dark:text-slate-500">
-              (Shift+Enter to send)
-            </span>
-          )}
+          <span className="text-xs text-slate-400 dark:text-slate-500">
+            {useEnterToSend ? '(Ctrl/Cmd+Enter also works)' : '(Shift+Enter or Ctrl/Cmd+Enter to send)'}
+          </span>
         </div>
       </div>
     </form>

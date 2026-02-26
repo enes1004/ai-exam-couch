@@ -12,7 +12,6 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [useEnterToSend, setUseEnterToSend] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -31,21 +30,6 @@ export default function Home() {
       textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 200) + 'px';
     }
   }, [input]);
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // If Enter is pressed
-    if (e.key === 'Enter') {
-      // If useEnterToSend is true and Shift is not pressed, send message
-      // If useEnterToSend is false and Shift is pressed, send message
-      const shouldSend = useEnterToSend ? !e.shiftKey : e.shiftKey;
-      
-      if (shouldSend) {
-        e.preventDefault();
-        handleSendMessage();
-      }
-      // Otherwise, allow default behavior (newline)
-    }
-  };
 
   const handleSendMessage = async () => {
     if (!input.trim() || isLoading) return;
@@ -114,11 +98,6 @@ export default function Home() {
     }
   };
 
-  const sendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await handleSendMessage();
-  };
-
   return (
     <main className="flex min-h-screen flex-col items-center bg-slate-50 dark:bg-slate-900 p-4 md:p-8 lg:p-12">
       <div className="w-full max-w-3xl flex flex-col h-[calc(100vh-2rem)] md:h-[calc(100vh-4rem)] lg:h-[calc(100vh-6rem)]">
@@ -160,11 +139,8 @@ export default function Home() {
             input={input}
             setInput={setInput}
             isLoading={isLoading}
-            useEnterToSend={useEnterToSend}
-            setUseEnterToSend={setUseEnterToSend}
             textareaRef={textareaRef}
-            onSubmit={sendMessage}
-            onKeyDown={handleKeyDown}
+            handleSendMessage={handleSendMessage}
           />
         </div>
 

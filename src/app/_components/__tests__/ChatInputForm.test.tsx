@@ -8,11 +8,8 @@ describe('ChatInputForm', () => {
     input: '',
     setInput: jest.fn(),
     isLoading: false,
-    useEnterToSend: false,
-    setUseEnterToSend: jest.fn(),
     textareaRef: createRef<HTMLTextAreaElement>(),
-    onSubmit: jest.fn(),
-    onKeyDown: jest.fn(),
+    handleSendMessage: jest.fn(),
   };
 
   beforeEach(() => {
@@ -42,15 +39,19 @@ describe('ChatInputForm', () => {
   });
 
   it('displays hint text when useEnterToSend is false', () => {
-    render(<ChatInputForm {...defaultProps} useEnterToSend={false} />);
+    render(<ChatInputForm {...defaultProps} />);
     
-    expect(screen.getByText('(Shift+Enter to send)')).toBeVisible();
+    expect(screen.getByText('(Shift+Enter or Ctrl/Cmd+Enter to send)')).toBeVisible();
   });
 
-  it('hides hint text when useEnterToSend is true', () => {
-    render(<ChatInputForm {...defaultProps} useEnterToSend={true} />);
+  it('displays different hint text when useEnterToSend is true', async () => {
+    const user = userEvent.setup();
+    render(<ChatInputForm {...defaultProps} />);
     
-    expect(screen.queryByText('(Shift+Enter to send)')).not.toBeInTheDocument();
+    const checkbox = screen.getByRole('checkbox');
+    await user.click(checkbox);
+    
+    expect(screen.getByText('(Ctrl/Cmd+Enter also works)')).toBeVisible();
   });
 
   it('disables textarea when isLoading is true', () => {
@@ -92,15 +93,15 @@ describe('ChatInputForm', () => {
   });
 
   it('calls onSubmit when form is submitted', () => {
-    const onSubmit = jest.fn((e) => e.preventDefault());
-    const { container } = render(<ChatInputForm {...defaultProps} input="test" onSubmit={onSubmit} />);
+    const handleSendMessage = jest.fn();
+    const { container } = render(<ChatInputForm {...defaultProps} input="test" handleSendMessage={handleSendMessage} />);
     
     const form = container.querySelector('form');
     if (form) {
       fireEvent.submit(form);
     }
     
-    expect(onSubmit).toHaveBeenCalled();
+    expect(handleSendMessage).toHaveBeenCalled();
   });
 
   it('calls setUseEnterToSend when checkbox is toggled', async () => {
@@ -108,9 +109,13 @@ describe('ChatInputForm', () => {
     render(<ChatInputForm {...defaultProps} />);
     
     const checkbox = screen.getByRole('checkbox');
-    await user.click(checkbox);
+    expect(checkbox).not.toBeChecked();
     
-    expect(defaultProps.setUseEnterToSend).toHaveBeenCalled();
+    await user.click(checkbox);
+    expect(checkbox).toBeChecked();
+    
+    await user.click(checkbox);
+    expect(checkbox).not.toBeChecked();
   });
 
   it('displays input value in textarea', () => {
@@ -120,17 +125,74 @@ describe('ChatInputForm', () => {
     expect(textarea).toHaveValue('Test message');
   });
 
-  it('checkbox is checked when useEnterToSend is true', () => {
-    render(<ChatInputForm {...defaultProps} useEnterToSend={true} />);
+  it('checkbox is checked when useEnterToSend is true', async () => {
+    const user = userEvent.setup();
+    render(<ChatInputForm {...defaultProps} />);
     
     const checkbox = screen.getByRole('checkbox');
+    await user.click(checkbox);
+    
     expect(checkbox).toBeChecked();
   });
 
   it('checkbox is unchecked when useEnterToSend is false', () => {
-    render(<ChatInputForm {...defaultProps} useEnterToSend={false} />);
+    render(<ChatInputForm {...defaultProps} />);
     
     const checkbox = screen.getByRole('checkbox');
     expect(checkbox).not.toBeChecked();
+  });
+
+  it('sends message on Ctrl+Enter regardless of checkbox state', () => {
+    const handleSendMessage = jest.fn();
+    render(<ChatInputForm {...defaultProps} input="test" handleSendMessage={handleSendMessage} />);
+    
+    const textarea = screen.getByPlaceholderText('Ask me anything...');
+    fireEvent.keyDown(textarea, { key: 'Enter', ctrlKey: true });
+    
+    expect(handleSendMessage).toHaveBeenCalled();
+  });
+
+  it('sends message on Cmd+Enter regardless of checkbox state', () => {
+    const handleSendMessage = jest.fn();
+    render(<ChatInputForm {...defaultProps} input="test" handleSendMessage={handleSendMessage} />);
+    
+    const textarea = screen.getByPlaceholderText('Ask me anything...');
+    fireEvent.keyDown(textarea, { key: 'Enter', metaKey: true });
+    
+    expect(handleSendMessage).toHaveBeenCalled();
+  });
+
+  it('sends message on Shift+Enter when useEnterToSend is false', () => {
+    const handleSendMessage = jest.fn();
+    render(<ChatInputForm {...defaultProps} input="test" handleSendMessage={handleSendMessage} />);
+    
+    const textarea = screen.getByPlaceholderText('Ask me anything...');
+    fireEvent.keyDown(textarea, { key: 'Enter', shiftKey: true });
+    
+    expect(handleSendMessage).toHaveBeenCalled();
+  });
+
+  it('sends message on Enter when useEnterToSend is true', async () => {
+    const user = userEvent.setup();
+    const handleSendMessage = jest.fn();
+    render(<ChatInputForm {...defaultProps} input="test" handleSendMessage={handleSendMessage} />);
+    
+    const checkbox = screen.getByRole('checkbox');
+    await user.click(checkbox);
+    
+    const textarea = screen.getByPlaceholderText('Ask me anything...');
+    fireEvent.keyDown(textarea, { key: 'Enter', shiftKey: false });
+    
+    expect(handleSendMessage).toHaveBeenCalled();
+  });
+
+  it('does not send on plain Enter when useEnterToSend is false', () => {
+    const handleSendMessage = jest.fn();
+    render(<ChatInputForm {...defaultProps} input="test" handleSendMessage={handleSendMessage} />);
+    
+    const textarea = screen.getByPlaceholderText('Ask me anything...');
+    fireEvent.keyDown(textarea, { key: 'Enter', shiftKey: false });
+    
+    expect(handleSendMessage).not.toHaveBeenCalled();
   });
 });
