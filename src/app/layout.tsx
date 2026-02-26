@@ -2,8 +2,8 @@ import './globals.css'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'AI Exam Couch - Tutoring Agent',
-  description: 'A multi-turn tutoring agent with real tool use and streaming',
+  title: 'AI Exam Couch - Your Friendly Study Buddy',
+  description: 'A conversational AI tutor that helps you study and ace your exams with friendly, interactive guidance.',
 }
 
 export default function RootLayout({
