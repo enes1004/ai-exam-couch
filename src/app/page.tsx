@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { ChatBubble, TypingIndicator, WelcomeScreen, type Message } from './_components';
+import { ChatBubble, type Message } from './_components/ChatBubble';
+import { TypingIndicator } from './_components/TypingIndicator';
+import { WelcomeScreen } from './_components/WelcomeScreen';
 
 const ASSISTANT_NAME = 'AI Exam Couch';
 
