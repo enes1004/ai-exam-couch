@@ -6,6 +6,7 @@ dist/
 build/
 .next/
 out/
+next-env.d.ts
 
 # Environment variables
 .env
@@ -33,6 +34,8 @@ yarn-error.log*
 # Testing
 coverage/
 .nyc_output/
+test-results/
+playwright-report/
 
 # Temporary files
 tmp/

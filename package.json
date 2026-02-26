@@ -8,6 +8,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:all": "npm run test && npm run test:e2e",
     "example:basic": "tsx src/examples/basic-streaming.ts",
     "example:advanced": "tsx src/examples/advanced-streaming.ts"
   },
@@ -29,15 +34,24 @@
     "react-dom": "^19.2.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4.2.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^30.0.0",
     "@types/node": "^25.3.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "autoprefixer": "^10.4.27",
     "eslint": "^9.39.3",
     "eslint-config-next": "^16.1.6",
+    "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.2.0",
+    "playwright": "^1.58.2",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.2.1",
+    "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
