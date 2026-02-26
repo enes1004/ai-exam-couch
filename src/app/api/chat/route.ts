@@ -1,3 +1,4 @@
+import { Models } from '@/config/models';
 import Anthropic from '@anthropic-ai/sdk';
 import { NextRequest } from 'next/server';
 
@@ -16,7 +17,7 @@ export async function POST(req: NextRequest) {
 
     // Create a streaming response
     const stream = await client.messages.stream({
-      model: 'claude-3-5-sonnet-20241022',
+      model: Models.chat,
       max_tokens: 1024,
       messages: messages,
     });
