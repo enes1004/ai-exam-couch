@@ -98,8 +98,9 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [useEnterToSend, setUseEnterToSend] = useState(true);
+  const [useEnterToSend, setUseEnterToSend] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -108,6 +109,14 @@ export default function Home() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    // Auto-resize textarea based on content
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 200) + 'px';
+    }
+  }, [input]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // If Enter is pressed
@@ -118,14 +127,13 @@ export default function Home() {
       
       if (shouldSend) {
         e.preventDefault();
-        sendMessage(e);
+        handleSendMessage();
       }
       // Otherwise, allow default behavior (newline)
     }
   };
 
-  const sendMessage = async (e: React.FormEvent | React.KeyboardEvent) => {
-    e.preventDefault();
+  const handleSendMessage = async () => {
     if (!input.trim() || isLoading) return;
 
     const userMessage: Message = { role: 'user', content: input };
@@ -192,6 +200,11 @@ export default function Home() {
     }
   };
 
+  const sendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await handleSendMessage();
+  };
+
   return (
     <main className="flex min-h-screen flex-col items-center bg-slate-50 dark:bg-slate-900 p-4 md:p-8 lg:p-12">
       <div className="w-full max-w-3xl flex flex-col h-[calc(100vh-2rem)] md:h-[calc(100vh-4rem)] lg:h-[calc(100vh-6rem)]">
@@ -236,6 +249,7 @@ export default function Home() {
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-3">
                 <textarea
+                  ref={textareaRef}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
@@ -245,11 +259,6 @@ export default function Home() {
                   aria-label="Chat message input"
                   className="flex-1 px-5 py-3.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent disabled:opacity-50 transition-all text-[15px] resize-none overflow-hidden"
                   style={{ minHeight: '48px', maxHeight: '200px' }}
-                  onInput={(e) => {
-                    const target = e.target as HTMLTextAreaElement;
-                    target.style.height = 'auto';
-                    target.style.height = Math.min(target.scrollHeight, 200) + 'px';
-                  }}
                 />
                 <button
                   type="submit"
