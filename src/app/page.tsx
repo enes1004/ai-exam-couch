@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react';
 
+const ASSISTANT_NAME = 'AI Exam Couch';
+
 interface Message {
   role: 'user' | 'assistant';
   content: string;
@@ -32,7 +34,7 @@ function ChatBubble({ message }: { message: Message }) {
       <AvatarIcon role={message.role} />
       <div className="flex flex-col gap-1 max-w-[75%]">
         <span className={`text-xs font-medium text-slate-400 ${isUser ? 'text-right' : 'text-left'}`}>
-          {isUser ? 'You' : 'Exam Couch'}
+          {isUser ? 'You' : ASSISTANT_NAME}
         </span>
         <div
           className={`rounded-2xl px-4 py-2 text-[15px] leading-relaxed shadow-sm ${
@@ -53,7 +55,7 @@ function TypingIndicator() {
     <div className="flex items-end gap-3">
       <AvatarIcon role="assistant" />
       <div className="flex flex-col gap-1">
-        <span className="text-xs font-medium text-slate-400">Exam Couch</span>
+        <span className="text-xs font-medium text-slate-400">{ASSISTANT_NAME}</span>
         <div className="bg-white dark:bg-slate-700 rounded-2xl rounded-bl-md px-7 py-5 shadow-sm border border-slate-100 dark:border-slate-600">
           <div className="flex items-center gap-1.5">
             <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -183,7 +185,7 @@ export default function Home() {
             AI
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">AI Exam Couch</h1>
+            <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">{ASSISTANT_NAME}</h1>
             <p className="text-sm text-slate-500 dark:text-slate-400">
               Your friendly study buddy
             </p>
