@@ -4,10 +4,13 @@ node_modules/
 # Build outputs
 dist/
 build/
+.next/
+out/
 
 # Environment variables
 .env
 .env.local
+.env*.local
 
 # IDE
 .vscode/
@@ -34,3 +37,6 @@ coverage/
 # Temporary files
 tmp/
 temp/
+
+# Vercel
+.vercel

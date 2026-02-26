@@ -1,8 +1,28 @@
 # ai-exam-couch
 An AI exam couch to practice AI toolings
 
+## Goal
+Build a multi-turn tutoring agent with real tool use and streaming.
+Practice agentic patterns and tool chaining — not just chat completion.
+
 ## Overview
-This project is a multi-turn tutoring agent built with Anthropic's Claude API. It's designed as a hands-on learning experience for practicing agentic patterns, tool use, and streaming responses.
+This is a Next.js project featuring a multi-turn tutoring agent built with Anthropic's Claude API. It's designed as a hands-on learning experience for practicing agentic patterns, tool use, and streaming responses. The project is deployed on Vercel for easy access and testing.
+
+## Tasks
+- [x] Set up Anthropic TypeScript SDK, basic streaming completion 📅 2026-02-28
+- [ ] Define 3 tools: parse_answer / check_calculation / get_hint 📅 2026-03-01
+- [ ] Build the tool execution loop — handle tool calls, feed results back 📅 2026-03-07
+- [ ] Implement tool chaining logic — check_calculation result gates get_hint 📅 2026-03-07
+- [ ] Prompt engineering: make the agent hint not answer (harder than it sounds) 📅 2026-03-21
+- [ ] Manual test: play student yourself, break the agent intentionally 📅 2026-03-21
+- [ ] Add multi-turn: student responds to hint, agent continues from context 📅 2026-03-28
+- [ ] Stream interleaved tool calls + text output to a basic UI 📅 2026-03-28
+- [ ] Read Simon Willison's blog — 2 posts/week alongside building 🔁 every week
+
+## Notes
+> **check_calculation** should be a real math evaluator (mathjs or similar), not AI.  
+> The interesting problem is prompt control — the agent will want to just solve it. Fight that.  
+> Don't add a vector store yet, use a hardcoded mock content store for **get_hint**. That comes in April.
 
 ## Setup
 
@@ -31,53 +51,78 @@ cp .env.example .env
 
 ## Usage
 
-### Run the basic streaming completion example:
-```bash
-npm start
-```
-
-### Run the advanced streaming example (with detailed event handling):
-```bash
-npm run start:advanced
-```
-
-### Run in development mode (with auto-reload):
+### Run the Next.js development server:
 ```bash
 npm run dev
 ```
 
-### Build the TypeScript code:
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the chat interface.
+
+### Build for production:
 ```bash
 npm run build
+npm start
 ```
+
+### Run standalone CLI examples:
+```bash
+# Basic streaming example
+npm run example:basic
+
+# Advanced streaming with event handling
+npm run example:advanced
+```
+
+## Deployment
+
+This project is configured for deployment on Vercel:
+
+1. Push your code to GitHub
+2. Import the project in [Vercel](https://vercel.com)
+3. Add your `ANTHROPIC_API_KEY` environment variable in Vercel project settings
+4. Deploy!
 
 ## Examples
 
-### Basic Streaming
-The basic example (`src/index.ts`) demonstrates:
-- Simple streaming setup with Anthropic SDK
-- Real-time text streaming
-- Basic error handling
-- Usage statistics
+### Web UI
+The main Next.js application provides an interactive chat interface with:
+- Real-time streaming responses
+- Multi-turn conversation support
+- Clean, responsive UI with Tailwind CSS
 
-### Advanced Streaming
-The advanced example (`src/advanced-streaming.ts`) demonstrates:
-- Multiple event types (messageStart, contentBlockStart, text, etc.)
-- Detailed event logging
-- Token usage tracking
-- Comprehensive error handling
+### CLI Examples
+- **Basic Streaming** (`src/examples/basic-streaming.ts`): Simple streaming setup with Anthropic SDK
+- **Advanced Streaming** (`src/examples/advanced-streaming.ts`): Detailed event handling and logging
 
 ## Project Structure
 ```
 ai-exam-couch/
 ├── src/
-│   ├── index.ts                # Basic streaming completion example
-│   └── advanced-streaming.ts   # Advanced streaming with event handling
-├── package.json                # Project dependencies and scripts
-├── tsconfig.json               # TypeScript configuration
-├── .env.example                # Example environment variables
-└── README.md                   # This file
+│   ├── app/
+│   │   ├── api/
+│   │   │   └── chat/
+│   │   │       └── route.ts      # Streaming API endpoint
+│   │   ├── layout.tsx            # Root layout
+│   │   ├── page.tsx              # Main chat interface
+│   │   └── globals.css           # Global styles
+│   └── examples/
+│       ├── basic-streaming.ts    # CLI: Basic streaming example
+│       └── advanced-streaming.ts # CLI: Advanced streaming with events
+├── package.json                  # Project dependencies and scripts
+├── tsconfig.json                 # TypeScript configuration
+├── next.config.js                # Next.js configuration
+├── tailwind.config.js            # Tailwind CSS configuration
+├── .env.example                  # Example environment variables
+└── README.md                     # This file
 ```
+
+## Tech Stack
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript
+- **AI**: Anthropic Claude API
+- **Styling**: Tailwind CSS
+- **Runtime**: Edge Runtime (for streaming)
+- **Deployment**: Vercel
 
 ## Roadmap
 
