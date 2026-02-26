@@ -10,7 +10,7 @@ describe('ChatInputForm', () => {
     isLoading: false,
     useEnterToSend: false,
     setUseEnterToSend: jest.fn(),
-    textareaRef: createRef<HTMLTextAreaElement | null>(),
+    textareaRef: createRef<HTMLTextAreaElement>(),
     onSubmit: jest.fn(),
     onKeyDown: jest.fn(),
   };
