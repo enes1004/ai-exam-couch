@@ -17,7 +17,6 @@ This is a Next.js project featuring a multi-turn tutoring agent built with Anthr
 - [ ] Manual test: play student yourself, break the agent intentionally 📅 2026-03-21
 - [ ] Add multi-turn: student responds to hint, agent continues from context 📅 2026-03-28
 - [ ] Stream interleaved tool calls + text output to a basic UI 📅 2026-03-28
-- [ ] Read Simon Willison's blog — 2 posts/week alongside building 🔁 every week
 
 ## Notes
 > **check_calculation** should be a real math evaluator (mathjs or similar), not AI.  
