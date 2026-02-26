@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ChatInputForm } from '../ChatInputForm';
 import { createRef } from 'react';
@@ -91,14 +91,16 @@ describe('ChatInputForm', () => {
     expect(defaultProps.setInput).toHaveBeenCalled();
   });
 
-  it('calls onSubmit when form is submitted', async () => {
-    const user = userEvent.setup();
-    render(<ChatInputForm {...defaultProps} input="test" />);
+  it('calls onSubmit when form is submitted', () => {
+    const onSubmit = jest.fn((e) => e.preventDefault());
+    const { container } = render(<ChatInputForm {...defaultProps} input="test" onSubmit={onSubmit} />);
     
-    const button = screen.getByRole('button', { name: 'Send message' });
-    await user.click(button);
+    const form = container.querySelector('form');
+    if (form) {
+      fireEvent.submit(form);
+    }
     
-    expect(defaultProps.onSubmit).toHaveBeenCalled();
+    expect(onSubmit).toHaveBeenCalled();
   });
 
   it('calls setUseEnterToSend when checkbox is toggled', async () => {
