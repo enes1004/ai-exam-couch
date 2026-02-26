@@ -78,18 +78,22 @@ test.describe('AI Exam Couch Chat Interface', () => {
     await page.goto('/');
 
     const checkbox = page.getByRole('checkbox');
-    const hintText = page.getByText('(Shift+Enter to send)');
+    const uncheckedHint = page.getByText('(Shift+Enter or Ctrl/Cmd+Enter to send)');
+    const checkedHint = page.getByText('(Ctrl/Cmd+Enter also works)');
     
-    // Initially unchecked, hint should be visible
-    await expect(hintText).toBeVisible();
+    // Initially unchecked, show shift+enter hint
+    await expect(uncheckedHint).toBeVisible();
+    await expect(checkedHint).not.toBeVisible();
     
-    // Check the box, hint should be hidden
+    // Check the box, show different hint
     await checkbox.check();
-    await expect(hintText).not.toBeVisible();
+    await expect(uncheckedHint).not.toBeVisible();
+    await expect(checkedHint).toBeVisible();
     
-    // Uncheck the box, hint should be visible again
+    // Uncheck the box, show shift+enter hint again
     await checkbox.uncheck();
-    await expect(hintText).toBeVisible();
+    await expect(uncheckedHint).toBeVisible();
+    await expect(checkedHint).not.toBeVisible();
   });
 
   test('should allow typing in input field', async ({ page }) => {
