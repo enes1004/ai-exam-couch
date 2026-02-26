@@ -35,6 +35,7 @@ export async function POST(req: NextRequest) {
         });
 
         stream.on('end', () => {
+          if (stream.ended) return;
           controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ type: 'end' })}\n\n`));
           controller.close();
         });
