@@ -1,4 +1,3 @@
-import Anthropic from '@anthropic-ai/sdk';
 import { ParsedAnswer } from '@/types/parsed-answer';
 import { Message } from '@/types/message';
 import { Models } from '@/config/models';
@@ -53,7 +52,16 @@ export const solveProblem = async (problem: string): Promise<ParsedAnswer> => {
     const parsed = await parseAnswer(messages);
 
     if (isParsingError(parsed)) {
-        throw new Error(`solveProblem failed to parse solution: ${parsed.error}`);
+        messages.push({
+            role: 'user',
+            content: `Your previous response could not be parsed into structured steps.  reason: ${parsed.error}.
+                Please rewrite your solution ensuring each step clearly states:
+                1. The reasoning in natural language
+                2. The explicit calculation (e.g. "8000 × 0.8 = 6400")
+                3. The result in natural language`
+
+        });
+        continue; // retry if parsing failed
     }
 
     const parsedAnswerWithCalculationCheck = checkCalculation(parsed);
