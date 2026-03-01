@@ -1,19 +1,15 @@
+import { isMessageContentString, Message } from '@/types/message';
 import { AvatarIcon } from './AvatarIcon';
 
 const ASSISTANT_NAME = 'AI Exam Couch';
 
-export interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-}
-
-interface ChatBubbleProps {
+type ChatBubbleProps = {
   message: Message;
 }
 
 export function ChatBubble({ message }: ChatBubbleProps) {
   const isUser = message.role === 'user';
-
+  const content = isMessageContentString(message.content) ? message.content : JSON.stringify(message.content);
   return (
     <div className={`flex items-end gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
       <AvatarIcon role={message.role} />
@@ -28,7 +24,7 @@ export function ChatBubble({ message }: ChatBubbleProps) {
               : 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 rounded-bl-md border border-slate-100 dark:border-slate-600'
           }`}
         >
-          <div className="whitespace-pre-wrap">{message.content}</div>
+          <div className="whitespace-pre-wrap">{content}</div>
         </div>
       </div>
     </div>

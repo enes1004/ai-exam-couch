@@ -9,8 +9,9 @@ Practice agentic patterns and tool chaining — not just chat completion.
 This is a Next.js project featuring a multi-turn tutoring agent built with Anthropic's Claude API. It's designed as a hands-on learning experience for practicing agentic patterns, tool use, and streaming responses. The project is deployed on Vercel for easy access and testing.
 
 ## Tasks
+
 - [x] Set up Anthropic TypeScript SDK, basic streaming completion 📅 2026-02-28
-- [ ] Define 3 tools: parse_answer / check_calculation / get_hint 📅 2026-03-01
+- [ ] Define 4 tools: parseAnswer / checkCalculation / solveProblem / getHint 📅 2026-03-01
 - [ ] Build the tool execution loop — handle tool calls, feed results back 📅 2026-03-07
 - [ ] Implement tool chaining logic — check_calculation result gates get_hint 📅 2026-03-07
 - [ ] Prompt engineering: make the agent hint not answer (harder than it sounds) 📅 2026-03-21
@@ -19,9 +20,11 @@ This is a Next.js project featuring a multi-turn tutoring agent built with Anthr
 - [ ] Stream interleaved tool calls + text output to a basic UI 📅 2026-03-28
 
 ## Notes
-> **check_calculation** should be a real math evaluator (mathjs or similar), not AI.  
+
+> **checkCalculation** should be a real math evaluator (mathjs or similar), not AI.  
+> **solveProblem** should give correct steps using parseAnswer / checkCalculation.
 > The interesting problem is prompt control — the agent will want to just solve it. Fight that.  
-> Don't add a vector store yet, use a hardcoded mock content store for **get_hint**. That comes in April.
+> Don't add a vector store yet, use a hardcoded mock content store for **getHint**. That comes in April.
 
 ## Setup
 
