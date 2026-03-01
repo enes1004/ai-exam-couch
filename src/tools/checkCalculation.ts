@@ -1,7 +1,7 @@
 import { ParsedAnswer } from "@/types/parsed-answer";
 import { evaluate } from "mathjs";
 
-const normalize = (str: string): string =>  str.replace(/[^0-9.\/-]/g, '');
+const normalize = (str: string): string =>  str.replace(/[^0-9.\/\-]/g, '');
 
 const evaluateExpression = (expression: string): string => {
     try {
