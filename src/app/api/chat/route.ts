@@ -3,7 +3,6 @@ import { Models } from '@/config/models';
 import Anthropic from '@anthropic-ai/sdk';
 import { Message } from '@anthropic-ai/sdk/resources';
 import { NextRequest } from 'next/server';
-import { get } from 'node:http';
 
 export const runtime = 'edge';
 
