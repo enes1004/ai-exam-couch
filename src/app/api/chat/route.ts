@@ -1,19 +1,16 @@
+import { getAiClient } from '@/lib/ai_client';
 import { Models } from '@/config/models';
 import Anthropic from '@anthropic-ai/sdk';
+import { Message } from '@anthropic-ai/sdk/resources';
 import { NextRequest } from 'next/server';
+import { get } from 'node:http';
 
 export const runtime = 'edge';
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages } = await req.json();
-
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
-      return new Response('ANTHROPIC_API_KEY is not configured', { status: 500 });
-    }
-
-    const client = new Anthropic({ apiKey });
+    const { messages }: { messages: Message[] } = await req.json();
+    const client = getAiClient();
 
     // Create a streaming response
     const stream = await client.messages.stream({
