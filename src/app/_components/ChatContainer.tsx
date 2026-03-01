@@ -37,24 +37,21 @@ export default function ChatContainer({
   }, [input]);
 
   useEffect(() => {
-    if(initialMessages && initialMessages.length > 0) {
-      if(initialMessages[initialMessages.length - 1].role === 'assistant') {
-        return;
-      }
-      // simulate loading state for initial messages
-      setIsLoading(true);
-      const timeout = setTimeout(() => {
-        setIsLoading(false);
-      }, 1000); // 1 second loading simulation
-      handleSendMessage(); // trigger the message sending logic to process initial messages
-      return () => clearTimeout(timeout);
+    handleSendMessage({resendLastMessage: true})
+  }, []);
+
+
+  const handleSendMessage = async ({resendLastMessage = false} = {}) => {
+    if ((!input.trim() && !resendLastMessage) || isLoading) return;
+    const lastMessage = messages?.[messages.length - 1];
+    if(resendLastMessage && lastMessage?.role !== 'user') {
+      return;
     }
-  }, [initialMessages]);
 
-  const handleSendMessage = async () => {
-    if (!input.trim() || isLoading) return;
-
-    const userMessage: Message = { role: 'user', content: input };
+    const userMessage: Message = { 
+      role: 'user', 
+      content: resendLastMessage ? lastMessage?.content : input 
+    };
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
     setInput('');
