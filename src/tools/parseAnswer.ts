@@ -1,5 +1,5 @@
 import { Message } from "@/types/message";
-import { AnswerParsingError, isParsedAnswer, isParsingError, ParsedAnswer, Step } from "@/types/parsed-answer";
+import { AnswerParsingError, isParsedAnswer, isParsingError, ParsedAnswer } from "@/types/parsed-answer";
 import { Models } from "@/config/models";
 import { getAiClient } from "@/lib/ai_client";
 
