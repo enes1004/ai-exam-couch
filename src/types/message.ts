@@ -1,6 +1,9 @@
 import { MessageParam } from '@anthropic-ai/sdk/resources';
 /**
- * An interpolate for the message types.
+ * Type alias for Anthropic's {@link MessageParam} message type.
+ *
+ * Used as the canonical message type within this codebase while delegating
+ * to the SDK's definition.
  */
 export type Message  = MessageParam;
 
