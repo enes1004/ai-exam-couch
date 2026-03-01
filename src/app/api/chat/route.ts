@@ -1,7 +1,6 @@
 import { getAiClient } from '@/lib/ai_client';
 import { Models } from '@/config/models';
-import Anthropic from '@anthropic-ai/sdk';
-import { Message } from '@anthropic-ai/sdk/resources';
+import { Message } from '@/types/message';
 import { NextRequest } from 'next/server';
 
 export const runtime = 'edge';
