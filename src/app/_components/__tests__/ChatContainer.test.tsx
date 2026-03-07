@@ -63,15 +63,9 @@ describe('ChatContainer', () => {
     const user = userEvent.setup();
     
     // Mock successful response
-    const mockReader = {
-      read: jest.fn()
-        .mockResolvedValueOnce({ done: false, value: new TextEncoder().encode('data: {"type":"text","content":"Response"}\n') })
-        .mockResolvedValueOnce({ done: true, value: undefined }),
-    };
-    
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      body: { getReader: () => mockReader },
+      json: () => Promise.resolve({ type: 'text', content: 'Response' }),
     });
 
     render(<ChatContainer />);
@@ -91,16 +85,13 @@ describe('ChatContainer', () => {
   it('shows loading indicator while waiting for response', async () => {
     const user = userEvent.setup();
     
-    // Mock delayed response
-    const mockReader = {
-      read: jest.fn()
-        .mockImplementation(() => new Promise(resolve => setTimeout(() => resolve({ done: true, value: undefined }), 100))),
-    };
-    
-    (global.fetch as jest.Mock).mockResolvedValue({
-      ok: true,
-      body: { getReader: () => mockReader },
-    });
+    // Mock delayed response so isLoading is true long enough to check
+    (global.fetch as jest.Mock).mockImplementation(
+      () => new Promise(resolve => setTimeout(() => resolve({
+        ok: true,
+        json: () => Promise.resolve({ type: 'text', content: 'Response' }),
+      }), 100))
+    );
 
     render(<ChatContainer />);
     
@@ -110,25 +101,18 @@ describe('ChatContainer', () => {
     const button = screen.getByRole('button', { name: 'Send message' });
     await user.click(button);
     
-    // TypingIndicator should appear
+    // TypingIndicator should appear while awaiting the response
     await waitFor(() => {
       expect(screen.getByTestId('typing-indicator')).toBeInTheDocument();
     });
   });
 
-  it('displays streamed assistant response', async () => {
+  it('displays assistant response', async () => {
     const user = userEvent.setup();
-    
-    const mockReader = {
-      read: jest.fn()
-        .mockResolvedValueOnce({ done: false, value: new TextEncoder().encode('data: {"type":"text","content":"Hello"}\n') })
-        .mockResolvedValueOnce({ done: false, value: new TextEncoder().encode('data: {"type":"text","content":" World"}\n') })
-        .mockResolvedValueOnce({ done: true, value: undefined }),
-    };
     
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      body: { getReader: () => mockReader },
+      json: () => Promise.resolve({ type: 'text', content: 'Hello World' }),
     });
 
     render(<ChatContainer />);
@@ -189,13 +173,9 @@ describe('ChatContainer', () => {
   it('clears input after sending message', async () => {
     const user = userEvent.setup();
     
-    const mockReader = {
-      read: jest.fn().mockResolvedValue({ done: true, value: undefined }),
-    };
-    
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      body: { getReader: () => mockReader },
+      json: () => Promise.resolve({ type: 'text', content: 'Response' }),
     });
 
     render(<ChatContainer />);
@@ -217,16 +197,13 @@ describe('ChatContainer', () => {
   it('disables input while loading', async () => {
     const user = userEvent.setup();
     
-    // Mock delayed response
-    const mockReader = {
-      read: jest.fn()
-        .mockImplementation(() => new Promise(resolve => setTimeout(() => resolve({ done: true, value: undefined }), 100))),
-    };
-    
-    (global.fetch as jest.Mock).mockResolvedValue({
-      ok: true,
-      body: { getReader: () => mockReader },
-    });
+    // Mock delayed response so loading state is visible
+    (global.fetch as jest.Mock).mockImplementation(
+      () => new Promise(resolve => setTimeout(() => resolve({
+        ok: true,
+        json: () => Promise.resolve({ type: 'text', content: 'Response' }),
+      }), 100))
+    );
 
     render(<ChatContainer />);
     
@@ -258,18 +235,12 @@ describe('ChatContainer', () => {
     expect(global.fetch).not.toHaveBeenCalled();
   });
 
-  it('handles stream error messages', async () => {
+  it('handles server error in response', async () => {
     const user = userEvent.setup();
-    
-    const mockReader = {
-      read: jest.fn()
-        .mockResolvedValueOnce({ done: false, value: new TextEncoder().encode('data: {"type":"error","content":"Stream error"}\n') })
-        .mockResolvedValueOnce({ done: true, value: undefined }),
-    };
     
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      body: { getReader: () => mockReader },
+      json: () => Promise.resolve({ error: 'Server error' }),
     });
 
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
@@ -282,28 +253,26 @@ describe('ChatContainer', () => {
     const button = screen.getByRole('button', { name: 'Send message' });
     await user.click(button);
     
-    // Error should be logged
+    // Error should be logged and error message shown
     await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith('Stream error:', 'Stream error');
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Error sending message:',
+        expect.any(Error)
+      );
     });
 
     consoleSpy.mockRestore();
   });
 
-  it('ignores invalid JSON in stream', async () => {
+  it('shows error message in chat when server returns error field', async () => {
     const user = userEvent.setup();
-    
-    const mockReader = {
-      read: jest.fn()
-        .mockResolvedValueOnce({ done: false, value: new TextEncoder().encode('data: invalid json\n') })
-        .mockResolvedValueOnce({ done: false, value: new TextEncoder().encode('data: {"type":"text","content":"Valid"}\n') })
-        .mockResolvedValueOnce({ done: true, value: undefined }),
-    };
     
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      body: { getReader: () => mockReader },
+      json: () => Promise.resolve({ error: 'Some server error' }),
     });
+
+    jest.spyOn(console, 'error').mockImplementation();
 
     render(<ChatContainer />);
     
@@ -313,9 +282,11 @@ describe('ChatContainer', () => {
     const button = screen.getByRole('button', { name: 'Send message' });
     await user.click(button);
     
-    // Valid message should still be displayed
+    // Error fallback message should appear in chat
     await waitFor(() => {
-      expect(screen.getByText('Valid')).toBeInTheDocument();
+      expect(screen.getByText(/Oops, something went wrong/)).toBeInTheDocument();
     });
+
+    jest.restoreAllMocks();
   });
 });
