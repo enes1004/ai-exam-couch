@@ -6,9 +6,12 @@ import { isParsingError } from '@/types/parsed-answer';
 import { checkCalculation } from './checkCalculation';
 import { getAiClient } from '@/lib/ai_client';
 import { withLogging } from '@/lib/with-logging';
+import { backoff } from '@/lib/sleep';
 
 const SYSTEM_PROMPT = `
 You are a math tutor solving a problem step by step.
+Fix any formatting issues, i.e. comma used in japanese instead of period for decimals.
+Do not use x or any variables in your solution, only explicit calculations that can be parsed by mathjs.
 Solve the given problem showing every reasoning step clearly in natural language.
 Show each calculation explicitly, e.g. "8000 × 0.8 = 6400".
 Do not skip steps. Do not explain what you are doing meta-level — just solve it.
@@ -62,6 +65,8 @@ export const solveProblem = withLogging('solveProblem', async (problem: string):
                 3. The result in natural language`
 
         });
+        console.warn(`Parsing error from solveProblem: ${parsed.error}. Retrying...`);
+        await backoff(i); // wait before retrying
         continue; // retry if parsing failed
     }
 
@@ -78,6 +83,8 @@ export const solveProblem = withLogging('solveProblem', async (problem: string):
                 ${incorrectCalculations.map(step => `- Reasoning: ${step.naturalLanguage}\n  Expression: ${step.mathjsExpression}\n  Expected Result: ${step.naturalLanguageResult}\n  Actual Result: ${step.mathjsResult}`).join('\n')}
             `
         });
+        console.warn(`Incorrect calculations: ${incorrectCalculations.map(step => `Reasoning: ${step.naturalLanguage}, Expression: ${step.mathjsExpression}, Expected Result: ${step.naturalLanguageResult}, Actual Result: ${step.mathjsResult}`).join('\n')}`);
+        await backoff(i); // wait before retrying
     }
 
   }

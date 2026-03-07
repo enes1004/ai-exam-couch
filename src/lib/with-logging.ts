@@ -6,8 +6,13 @@ export const withLogging = <TArgs extends any[], TReturn>(
 ): ToolFn<TArgs, TReturn> => {
   return async (...args: TArgs): Promise<TReturn> => {
     console.log(`[${name}] input:`, JSON.stringify(args, null, 2));
-    const result = await fn(...args);
-    console.log(`[${name}] output:`, JSON.stringify(result, null, 2));
-    return result;
+    try {
+      const result = await fn(...args);
+      console.log(`[${name}] output:`, JSON.stringify(result, null, 2));
+      return result;
+    } catch (error) {
+      console.error(`[${name}] error:`, error);
+      throw error;
+    }
   };
 };
