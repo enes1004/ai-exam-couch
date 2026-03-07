@@ -2,6 +2,7 @@ import { Message } from "@/types/message";
 import { AnswerParsingError, isParsedAnswer, isParsingError, ParsedAnswer } from "@/types/parsed-answer";
 import { Models } from "@/config/models";
 import { getAiClient } from "@/lib/ai_client";
+import { withLogging } from "@/lib/with-logging";
 
 // Used as prompt template only — values are example strings for the model
 const PARSE_STRUCTURE_EXPLANATION: ParsedAnswer = 
@@ -40,7 +41,7 @@ If no math can be parsed from the answer:
  * @param messages 
  * @returns ParsedAnswer
  */
-export const parseAnswer = async (messages: Message[]): Promise<ParsedAnswer | AnswerParsingError> => {
+export const parseAnswer = withLogging('parseAnswer', async (messages: Message[]): Promise<ParsedAnswer | AnswerParsingError> => {
   const client = getAiClient();
   const response = await client.messages.create({
     model: Models.parseAnswer, // cheaper model is fine here, no streaming needed
@@ -63,5 +64,5 @@ export const parseAnswer = async (messages: Message[]): Promise<ParsedAnswer | A
   }
 
   throw new Error('Unexpected response format from parseAnswer: ' + rawText);
-};
+});
 

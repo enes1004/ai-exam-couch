@@ -1,3 +1,4 @@
+import { withLogging } from "@/lib/with-logging";
 import { ParsedAnswer } from "@/types/parsed-answer";
 import { evaluate } from "mathjs";
 
@@ -18,7 +19,7 @@ const evaluateExpression = (expression: string): string => {
  * @param parsedAnswer 
  * @returns ParsedAnswer with mathjsResult added to each step, which is the evaluated result of mathjsExpression.
  */
-export const checkCalculation = (parsedAnswer: ParsedAnswer): ParsedAnswer => {
+export const checkCalculation = withLogging('checkCalculation', async (parsedAnswer: ParsedAnswer): Promise<ParsedAnswer> => {
     
     return {
         ...parsedAnswer,
@@ -33,4 +34,4 @@ export const checkCalculation = (parsedAnswer: ParsedAnswer): ParsedAnswer => {
         })
     };
 
-};
+});

@@ -4,6 +4,7 @@ import { Hint, isHint } from "@/types/hint";
 import { Message } from "@/types/message";
 import { ParsedAnswer, Solution } from "@/types/parsed-answer";
 import { Models } from "@/config/models";
+import { withLogging } from "@/lib/with-logging";
 /**
  * @description compare input to solution and generate a hint
  * @param {ParsedAnswer} userAnswer - The user's input
@@ -49,7 +50,7 @@ const SYSTEM_PROMPT = `
 `;
 
 
-export const getHint = async (userAnswer: ParsedAnswer, solution: Solution, messages: Message[]): Promise<Hint> => {
+export const getHint = withLogging('getHint', async (userAnswer: ParsedAnswer, solution: Solution, messages: Message[]): Promise<Hint> => {
     const client = getAiClient();
 
     const hintMessages: Message[] = [
@@ -85,4 +86,4 @@ ${JSON.stringify(solution, null, 2)}`
 
     const hint: Hint = parsed;
     return hint;
-}
+});

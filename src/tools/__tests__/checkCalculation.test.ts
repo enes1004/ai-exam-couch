@@ -2,7 +2,7 @@ import { checkCalculation } from '../checkCalculation';
 import { ParsedAnswer } from '@/types/parsed-answer';
 
 describe('checkCalculation', () => {
-  it('evaluates simple mathjs expressions correctly', () => {
+  it('evaluates simple mathjs expressions correctly', async () => {
     const parsedAnswer: ParsedAnswer = {
       problem: 'What is 2 + 2?',
       steps: [
@@ -15,13 +15,13 @@ describe('checkCalculation', () => {
       originalAnswer: '2 + 2 = 4',
     };
 
-    const result = checkCalculation(parsedAnswer);
+    const result = await checkCalculation(parsedAnswer);
 
     expect(result.steps[0].mathjsResult).toBe('4');
     expect(result.steps[0].isMatching).toBe(true);
   });
 
-  it('detects incorrect calculations', () => {
+  it('detects incorrect calculations', async () => {
     const parsedAnswer: ParsedAnswer = {
       problem: 'What is 5 * 3?',
       steps: [
@@ -34,13 +34,13 @@ describe('checkCalculation', () => {
       originalAnswer: '5 * 3 = 12',
     };
 
-    const result = checkCalculation(parsedAnswer);
+    const result = await checkCalculation(parsedAnswer);
 
     expect(result.steps[0].mathjsResult).toBe('15');
     expect(result.steps[0].isMatching).toBe(false);
   });
 
-  it('handles multiple steps', () => {
+  it('handles multiple steps', async () => {
     const parsedAnswer: ParsedAnswer = {
       problem: 'Calculate (2 + 3) * 4',
       steps: [
@@ -58,7 +58,7 @@ describe('checkCalculation', () => {
       originalAnswer: '2 + 3 = 5, then 5 * 4 = 20',
     };
 
-    const result = checkCalculation(parsedAnswer);
+    const result = await checkCalculation(parsedAnswer);
 
     expect(result.steps[0].mathjsResult).toBe('5');
     expect(result.steps[0].isMatching).toBe(true);
@@ -66,7 +66,7 @@ describe('checkCalculation', () => {
     expect(result.steps[1].isMatching).toBe(true);
   });
 
-  it('normalizes results by removing non-numeric characters', () => {
+  it('normalizes results by removing non-numeric characters', async () => {
     const parsedAnswer: ParsedAnswer = {
       problem: 'What is 10 / 2?',
       steps: [
@@ -79,13 +79,13 @@ describe('checkCalculation', () => {
       originalAnswer: '10 / 2 = $5',
     };
 
-    const result = checkCalculation(parsedAnswer);
+    const result = await checkCalculation(parsedAnswer);
 
     expect(result.steps[0].mathjsResult).toBe('5');
     expect(result.steps[0].isMatching).toBe(true);
   });
 
-  it('handles decimal results', () => {
+  it('handles decimal results', async () => {
     const parsedAnswer: ParsedAnswer = {
       problem: 'What is 10 / 3?',
       steps: [
@@ -98,13 +98,13 @@ describe('checkCalculation', () => {
       originalAnswer: '10 / 3 = 3.3333333333333335',
     };
 
-    const result = checkCalculation(parsedAnswer);
+    const result = await checkCalculation(parsedAnswer);
 
     expect(result.steps[0].mathjsResult).toBe('3.3333333333333335');
     expect(result.steps[0].isMatching).toBe(true);
   });
 
-  it('handles invalid expressions', () => {
+  it('handles invalid expressions', async () => {
     const parsedAnswer: ParsedAnswer = {
       problem: 'Invalid expression',
       steps: [
@@ -119,7 +119,7 @@ describe('checkCalculation', () => {
 
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
-    const result = checkCalculation(parsedAnswer);
+    const result = await checkCalculation(parsedAnswer);
 
     // After normalization, both empty strings should not match '0'
     expect(result.steps[0].mathjsResult).toBe('');
@@ -129,7 +129,7 @@ describe('checkCalculation', () => {
     consoleSpy.mockRestore();
   });
 
-  it('handles complex mathematical expressions', () => {
+  it('handles complex mathematical expressions', async () => {
     const parsedAnswer: ParsedAnswer = {
       problem: 'Calculate sqrt(16) + 2^3',
       steps: [
@@ -152,7 +152,7 @@ describe('checkCalculation', () => {
       originalAnswer: 'sqrt(16) = 4, 2^3 = 8, 4 + 8 = 12',
     };
 
-    const result = checkCalculation(parsedAnswer);
+    const result = await checkCalculation(parsedAnswer);
 
     expect(result.steps[0].mathjsResult).toBe('4');
     expect(result.steps[0].isMatching).toBe(true);
@@ -162,7 +162,7 @@ describe('checkCalculation', () => {
     expect(result.steps[2].isMatching).toBe(true);
   });
 
-  it('preserves original parsed answer structure', () => {
+  it('preserves original parsed answer structure', async () => {
     const parsedAnswer: ParsedAnswer = {
       problem: 'What is 1 + 1?',
       steps: [
@@ -175,7 +175,7 @@ describe('checkCalculation', () => {
       originalAnswer: '1 + 1 = 2',
     };
 
-    const result = checkCalculation(parsedAnswer);
+    const result = await checkCalculation(parsedAnswer);
 
     expect(result.problem).toBe(parsedAnswer.problem);
     expect(result.originalAnswer).toBe(parsedAnswer.originalAnswer);
@@ -184,7 +184,7 @@ describe('checkCalculation', () => {
     expect(result.steps[0].naturalLanguageResult).toBe(parsedAnswer.steps[0].naturalLanguageResult);
   });
 
-  it('handles expressions with parentheses', () => {
+  it('handles expressions with parentheses', async () => {
     const parsedAnswer: ParsedAnswer = {
       problem: 'What is (5 + 3) * 2?',
       steps: [
@@ -197,13 +197,13 @@ describe('checkCalculation', () => {
       originalAnswer: '(5 + 3) * 2 = 16',
     };
 
-    const result = checkCalculation(parsedAnswer);
+    const result = await checkCalculation(parsedAnswer);
 
     expect(result.steps[0].mathjsResult).toBe('16');
     expect(result.steps[0].isMatching).toBe(true);
   });
 
-  it('normalizes both mathjsResult and naturalLanguageResult for comparison', () => {
+  it('normalizes both mathjsResult and naturalLanguageResult for comparison', async () => {
     const parsedAnswer: ParsedAnswer = {
       problem: 'What is 100 / 4?',
       steps: [
@@ -216,7 +216,7 @@ describe('checkCalculation', () => {
       originalAnswer: '100 / 4 = $25 dollars',
     };
 
-    const result = checkCalculation(parsedAnswer);
+    const result = await checkCalculation(parsedAnswer);
 
     expect(result.steps[0].mathjsResult).toBe('25');
     expect(result.steps[0].isMatching).toBe(true);

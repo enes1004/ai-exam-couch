@@ -5,6 +5,7 @@ import { parseAnswer } from './parseAnswer';
 import { isParsingError } from '@/types/parsed-answer';
 import { checkCalculation } from './checkCalculation';
 import { getAiClient } from '@/lib/ai_client';
+import { withLogging } from '@/lib/with-logging';
 
 const SYSTEM_PROMPT = `
 You are a math tutor solving a problem step by step.
@@ -24,7 +25,7 @@ const MAX_RETRIES = 3;
  * Returns a ParsedAnswer representing the correct solution,
  * which can be used by getHint to compare against student's answer.
  */
-export const solveProblem = async (problem: string): Promise<ParsedAnswer> => {
+export const solveProblem = withLogging('solveProblem', async (problem: string): Promise<ParsedAnswer> => {
   const client = getAiClient();
   const messages: Message[] = [
     {
@@ -64,7 +65,7 @@ export const solveProblem = async (problem: string): Promise<ParsedAnswer> => {
         continue; // retry if parsing failed
     }
 
-    const parsedAnswerWithCalculationCheck = checkCalculation(parsed);
+    const parsedAnswerWithCalculationCheck = await checkCalculation(parsed);
     const incorrectCalculations = parsedAnswerWithCalculationCheck.steps.filter(step => step.isMatching === false);
     if( incorrectCalculations.length === 0) {
         return parsedAnswerWithCalculationCheck;
@@ -82,4 +83,4 @@ export const solveProblem = async (problem: string): Promise<ParsedAnswer> => {
   }
 
   throw new Error('solveProblem failed after maximum retries');
-};
+});
