@@ -4,7 +4,7 @@ const ASSISTANT_NAME = 'AI Exam Couch';
 
 export function TypingIndicator() {
   return (
-    <div className="flex items-end gap-3">
+    <div className="flex items-end gap-3" data-testid="typing-indicator">
       <AvatarIcon role="assistant" />
       <div className="flex flex-col gap-1">
         <span className="text-xs font-medium text-slate-400">{ASSISTANT_NAME}</span>
