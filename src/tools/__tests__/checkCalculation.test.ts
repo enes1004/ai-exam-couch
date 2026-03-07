@@ -92,15 +92,16 @@ describe('checkCalculation', () => {
         {
           naturalLanguage: 'Divide 10 by 3',
           mathjsExpression: '10 / 3',
-          naturalLanguageResult: '3.3333333333333335',
+          naturalLanguageResult: '3.333',
         },
       ],
-      originalAnswer: '10 / 3 = 3.3333333333333335',
+      originalAnswer: '10 / 3 = 3.333',
     };
 
     const result = await checkCalculation(parsedAnswer);
 
-    expect(result.steps[0].mathjsResult).toBe('3.3333333333333335');
+    // normalize() rounds to 3 decimal places, so 3.3333... becomes '3.333'
+    expect(result.steps[0].mathjsResult).toBe('3.333');
     expect(result.steps[0].isMatching).toBe(true);
   });
 
