@@ -47,14 +47,18 @@ export default function ChatContainer({
     if(resendLastMessage && lastMessage?.role !== 'user') {
       return;
     }
+    const newMessages = [...messages];
 
-    const userMessage: Message = { 
-      role: 'user', 
-      content: resendLastMessage ? lastMessage?.content : input 
-    };
-    const newMessages = [...messages, userMessage];
-    setMessages(newMessages);
-    setInput('');
+    if (!resendLastMessage) {
+      const userMessage: Message = { 
+        role: 'user', 
+        content: input.trim()
+      };
+      newMessages.push(userMessage);
+      setMessages(newMessages);
+      setInput('');
+    }
+  
     setIsLoading(true);
 
     try {
