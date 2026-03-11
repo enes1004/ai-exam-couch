@@ -16,10 +16,6 @@ export const isParsedAnswer = (result: any): result is ParsedAnswer => {
     return false;
   }
 
-  if (isNaN(Number(result.originalAnswer))) {
-    return false; // reject if not a valid number string
-  }
-
   return result.steps.every((step: any) =>
     typeof step.naturalLanguage === 'string' &&
     typeof step.mathjsExpression === 'string' &&

@@ -78,12 +78,47 @@ export default function ChatContainer({
       if (!response.ok) {
         throw new Error('Failed to send message');
       }
-      const data = await response.json();
-      
-      if(data.error) {
-        throw new Error(data.error);
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('No reader available');
       }
-      setMessages([...newMessages, { role: 'assistant', content: data.content }]);
+
+      const decoder = new TextDecoder();
+      let assistantContent = '';
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const dataStr = line.slice(6);
+          try {
+            const data = JSON.parse(dataStr);
+            if (data.type === 'text') {
+              assistantContent += data.content;
+              setMessages([...newMessages, { role: 'assistant', content: assistantContent }]);
+            } else if (data.type === 'error') {
+              console.error('Stream error:', data.content);
+            }
+          } catch {
+            // Ignore invalid JSON in stream
+          }
+        }
+      }
+
+      if (!assistantContent) {
+        setMessages([...newMessages, { 
+          role: 'assistant', 
+          content: "Oops, something went wrong on my end! Could you try sending that again? I promise I'll get it right this time." 
+        }]);
+      }
 
     } catch (error) {
       console.error('Error sending message:', error);
