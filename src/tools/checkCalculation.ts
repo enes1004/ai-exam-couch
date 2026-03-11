@@ -20,14 +20,14 @@ const  sanitizeExpression = (expression: string): string => {
 const evaluateExpression = (expression: string | undefined): string => {
   if (!expression || typeof expression !== 'string' || expression.trim() === '') {
     console.error('evaluateExpression received invalid input:', expression);
-    return '';
+    return 'INVALID_EXPRESSION';
   }
   try {
     const result = evaluate(sanitizeExpression(expression));
     return result.toString();
   } catch (error) {
     console.error(`Error evaluating expression "${expression}":`, error);
-    return '';
+    return 'INVALID_EXPRESSION';
   }
 };
 
@@ -43,7 +43,7 @@ export const checkCalculation = withLogging('checkCalculation', async (parsedAns
             const mathjsResult = evaluateExpression(step.mathjsExpression);
             return {
                 ...step,
-                mathjsResult,
+                mathjsResult: normalize(mathjsResult),
                 isMatching: normalize(mathjsResult) === normalize(step.naturalLanguageResult)
 
             }

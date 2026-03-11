@@ -62,16 +62,10 @@ describe('ChatContainer', () => {
   it('adds user message to chat when form is submitted', async () => {
     const user = userEvent.setup();
     
-    // Mock successful response
-    const mockReader = {
-      read: jest.fn()
-        .mockResolvedValueOnce({ done: false, value: new TextEncoder().encode('data: {"type":"text","content":"Response"}\n') })
-        .mockResolvedValueOnce({ done: true, value: undefined }),
-    };
-    
+    // Mock successful JSON response
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      body: { getReader: () => mockReader },
+      json: jest.fn().mockResolvedValue({ content: 'Response' }),
     });
 
     render(<ChatContainer />);
@@ -91,15 +85,10 @@ describe('ChatContainer', () => {
   it('shows loading indicator while waiting for response', async () => {
     const user = userEvent.setup();
     
-    // Mock delayed response
-    const mockReader = {
-      read: jest.fn()
-        .mockImplementation(() => new Promise(resolve => setTimeout(() => resolve({ done: true, value: undefined }), 100))),
-    };
-    
+    // Mock delayed JSON response so the typing indicator is visible
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      body: { getReader: () => mockReader },
+      json: jest.fn().mockImplementation(() => new Promise(resolve => setTimeout(() => resolve({ content: 'Response' }), 100))),
     });
 
     render(<ChatContainer />);
@@ -116,19 +105,12 @@ describe('ChatContainer', () => {
     });
   });
 
-  it('displays streamed assistant response', async () => {
+  it('displays assistant response', async () => {
     const user = userEvent.setup();
-    
-    const mockReader = {
-      read: jest.fn()
-        .mockResolvedValueOnce({ done: false, value: new TextEncoder().encode('data: {"type":"text","content":"Hello"}\n') })
-        .mockResolvedValueOnce({ done: false, value: new TextEncoder().encode('data: {"type":"text","content":" World"}\n') })
-        .mockResolvedValueOnce({ done: true, value: undefined }),
-    };
     
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      body: { getReader: () => mockReader },
+      json: jest.fn().mockResolvedValue({ content: 'Hello World' }),
     });
 
     render(<ChatContainer />);
@@ -189,13 +171,10 @@ describe('ChatContainer', () => {
   it('clears input after sending message', async () => {
     const user = userEvent.setup();
     
-    const mockReader = {
-      read: jest.fn().mockResolvedValue({ done: true, value: undefined }),
-    };
-    
+    // Mock successful JSON response
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      body: { getReader: () => mockReader },
+      json: jest.fn().mockResolvedValue({ content: 'OK' }),
     });
 
     render(<ChatContainer />);
@@ -217,15 +196,10 @@ describe('ChatContainer', () => {
   it('disables input while loading', async () => {
     const user = userEvent.setup();
     
-    // Mock delayed response
-    const mockReader = {
-      read: jest.fn()
-        .mockImplementation(() => new Promise(resolve => setTimeout(() => resolve({ done: true, value: undefined }), 100))),
-    };
-    
+    // Mock delayed JSON response so isLoading stays true long enough
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      body: { getReader: () => mockReader },
+      json: jest.fn().mockImplementation(() => new Promise(resolve => setTimeout(() => resolve({ content: 'Response' }), 100))),
     });
 
     render(<ChatContainer />);
@@ -258,18 +232,13 @@ describe('ChatContainer', () => {
     expect(global.fetch).not.toHaveBeenCalled();
   });
 
-  it('handles stream error messages', async () => {
+  it('handles server-side error in response', async () => {
     const user = userEvent.setup();
     
-    const mockReader = {
-      read: jest.fn()
-        .mockResolvedValueOnce({ done: false, value: new TextEncoder().encode('data: {"type":"error","content":"Stream error"}\n') })
-        .mockResolvedValueOnce({ done: true, value: undefined }),
-    };
-    
+    // Server returns a JSON error field
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      body: { getReader: () => mockReader },
+      json: jest.fn().mockResolvedValue({ error: 'Server error' }),
     });
 
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
@@ -282,27 +251,24 @@ describe('ChatContainer', () => {
     const button = screen.getByRole('button', { name: 'Send message' });
     await user.click(button);
     
-    // Error should be logged
+    // Error message should appear
     await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith('Stream error:', 'Stream error');
+      expect(screen.getByText(/Oops, something went wrong/)).toBeInTheDocument();
     });
+
+    // Error should be logged
+    expect(consoleSpy).toHaveBeenCalledWith('Error sending message:', expect.any(Error));
 
     consoleSpy.mockRestore();
   });
 
-  it('ignores invalid JSON in stream', async () => {
+  it('handles json parse failure gracefully', async () => {
     const user = userEvent.setup();
     
-    const mockReader = {
-      read: jest.fn()
-        .mockResolvedValueOnce({ done: false, value: new TextEncoder().encode('data: invalid json\n') })
-        .mockResolvedValueOnce({ done: false, value: new TextEncoder().encode('data: {"type":"text","content":"Valid"}\n') })
-        .mockResolvedValueOnce({ done: true, value: undefined }),
-    };
-    
+    // json() throws a parse error
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      body: { getReader: () => mockReader },
+      json: jest.fn().mockRejectedValue(new Error('Failed to parse JSON')),
     });
 
     render(<ChatContainer />);
@@ -313,9 +279,9 @@ describe('ChatContainer', () => {
     const button = screen.getByRole('button', { name: 'Send message' });
     await user.click(button);
     
-    // Valid message should still be displayed
+    // Error message should appear when json parsing fails
     await waitFor(() => {
-      expect(screen.getByText('Valid')).toBeInTheDocument();
+      expect(screen.getByText(/Oops, something went wrong/)).toBeInTheDocument();
     });
   });
 });
