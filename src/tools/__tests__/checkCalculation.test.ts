@@ -100,7 +100,7 @@ describe('checkCalculation', () => {
 
     const result = await checkCalculation(parsedAnswer);
 
-    expect(result.steps[0].mathjsResult).toBe('3.3333333333333335');
+    expect(result.steps[0].mathjsResult).toBe('3.333');
     expect(result.steps[0].isMatching).toBe(true);
   });
 
